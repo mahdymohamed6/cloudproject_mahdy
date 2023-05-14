@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>CRUD Application</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+  <style>
+    /* Reset styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* Base styles */
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #f7f7f7;
+      color: #333;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    h1, h2 {
+      font-weight: 700;
+      margin-top: 30px;
+      margin-bottom: 20px;
+    }
+
+    p {
+      margin-bottom: 20px;
+    }
+
+    button {
+      background-color: #4c4faf;
+      border: none;
+      color: #fff;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #2e4d8b;
+    }
+
+    input[type=text], input[type=email], input[type=number] {
+      width: 100%;
+      padding: 14px 20px;
+      margin-bottom: 20px;
+      border: none;
+      border-radius: 4px;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      transition: border-color 0.3s ease;
+    }
+
+    input[type=text]:focus, input[type=email]:focus, input[type=number]:focus {
+      outline: none;
+      border-color: #4CAF50;
+    }
+
+    ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    li {
+      padding: 20px;
+      border-bottom: 1px solid #ccc;
+      transition: background-color 0.3s ease;
+    }
+
+    li:last-child {
+      border-bottom: none;
+    }
+
+    li:hover {
+      background-color: #f2f2f2;
+    }
+
+    /* Layout styles */
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px;
+      background-color: #fff;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .header {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 40px;
+    }
+
+    .header h1 {
+      font-size: 36px;
+    }
+
+    .form {
+      margin-bottom: 40px;
+    }
+
+    .form h2 {
+      margin-bottom: 20px;
+      font-size: 28px;
+    }
+
+    .form button {
+      margin-top: 20px;
+    }
+
+    .list {
+      margin-bottom: 40px;
+    }
+
+    .list h2 {
+      margin-bottom: 20px;
+      font-size: 28px;
+    }
+
+    .list li {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .list li span {
+      flex-basis: 100%;
+      font-size: 18px;
+      margin-bottom: 10px;
+      text-align: left;
+    }
+
+    .list li small {
+      font-size: 14px;
+      color: #999;
+    }
+  </style>
+</head>
+<body>
+  
+    <div class="header">
+      <h1>CRUD Application</h1>
+    </div>
+
+    <div class="form">
+      <h2>Add Person</h2>
+      <form>
+        <input type="text" id="person-name" placeholder="Name">
+        <input type="number" id="person-age" placeholder="Age">
+        <input type="text" id="person-gender" placeholder="Gender">
+        <input type="email" id="person-email" placeholder="Email">
+        <button type="button" onclick="addPerson()">Add Person</button>
+      </form>
+    </div>
+
+    <div class="form">
+      <h2>Update Person</h2>
+      <form>
+        <input type="text" id="update-id" placeholder="ID">
+        <input type="text" id="update-name" placeholder="Name">
+        <input type="number" id="update-age" placeholder="Age">
+        <input type="text" id="update-gender" placeholder="Gender">
+        <input type="email" id="update-email" placeholder="Email">
+        <button type="button" onclick="updatePerson()">Update Person</button>
+      </form>
+    </div>
+
+    <div class="form">
+      <h2>Delete Person</h2>
+      <form>
+        <input type="text" id="delete-id" placeholder="ID">
+        <button type="button" onclick="deletePerson()">Delete Person</button>
+      </form>
+    </div>
+
+    <div class="list">
+      <h2>Persons List</h2>
+      <ul id="persons-list"></ul>
+    </div>
+  
+
+  <script>
+    function updatePersonsList() {
+      const xhr = new XMLHttpRequest();
+      xhr.open('GET', '/persons');
+      xhr.onload = function() {
+        const persons = JSON.parse(xhr.responseText);
+        const list = document.getElementById('persons-list');
+        list.innerHTML = '';
+        for (let i = 0; i < persons.length; i++) {
+          const li = document.createElement('li');
+          li.innerHTML = `
+            <span>${persons[i].name}</span>
+            <small>ID: ${persons[i].id}, Age: ${persons[i].age}, Gender: ${persons[i].gender}, Email: ${persons[i].email}</small>
+          `;
+          list.appendChild(li);
+        }
+      };
+      xhr.send();
+    }
+
+    function addPerson() {
+      const name = document.getElementById('person-name').value;
+      const age = document.getElementById('person-age').value;
+      const gender = document.getElementById('person-gender').value;
+      const email = document.getElementById('person-email').value;
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', '/persons');
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.onload = function() {
+        const person = JSON.parse(xhr.responseText);
+        alert(`Person added: ${person.name}`);
+        updatePersonsList();
+      };
+      const data = JSON.stringify({
+        name: name,
+        age: age,
+        gender: gender,
+        email: email
+      });
+      xhr.send(data);
+    }
+
+    function updatePerson() {
+      const id = document.getElementById('update-id').value;
+      const name = document.getElementById('update-name').value;
+      const age = document.getElementById('update-age').value;
+      const gender = document.getElementById('update-gender').value;
+      const email = document.getElementById('update-email').value;
+      const xhr = new XMLHttpRequest();
+      xhr.open('PUT', `/persons/${id}`);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.onload = function() {
+        const person = JSON.parse(xhr.responseText);
+        alert(`Person updated: ${person.name}`);
+        updatePersonsList();
+      };
+      const data = JSON.stringify({
+        name: name,
+        age: age,
+        gender: gender,
+        email: email
+      });
+      xhr.send(data);
+    }
+
+    function deletePerson() {
+      const id = document.getElementById('delete-id').value;
+      const xhr = new XMLHttpRequest();
+      xhr.open('DELETE', `/persons/${id}`);
+      xhr.onload = function() {
+        alert(`Person with ID ${id} deleted`);
+        updatePersonsList();
+      };
+      xhr.send();
+    }
+
+    updatePersonsList();
+  </script>
+</body>
+</html>
